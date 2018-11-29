@@ -41,7 +41,7 @@
 	<ul id="messages"></ul>
 
 	<form>
-		<textarea id="input-message" placeholder="按 Enter 送出訊息。按 Shift+Enter 換行。"></textarea>
+		<textarea id="input-message" placeholder="按 Enter 送出訊息。按 Shift+Enter 換行。剪貼簿裡是圖片的話可以貼圖。"></textarea>
 	</form>
 
 	<!-- Socket.IO -->
@@ -49,12 +49,19 @@
 	<!-- jQuery -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
 
+	<!-- paste.js -->
+	<script src="paste.js"></script>
+
 	<script>
 		$(function() {
 			// https://stackoverflow.com/a/6707547/6378871
 			let replaceURLWithHTMLLinks = function(text) {
 				var exp = /(\b(https?|ftp|file):\/\/[-A-Z0-9+&@#\/%?=~_|!:,.;]*[-A-Z0-9+&@#\/%=~_|])/ig;
 				return text.replace(exp,"<a href='$1' target='_blank'>$1</a>");
+			};
+
+			var isImageDataURL = function(str) {
+				return str.startsWith('data:image/');
 			};
 
 			let $messages = $("#messages");
@@ -77,8 +84,34 @@
 				return false;
 			});
 			socket.on("chat message", function(msg) {
-				$messages.append($("<li>").html(replaceURLWithHTMLLinks(msg)));
+				var $item = $("<li>");
+
+				 // TODO: more elegant way? future extensibility?
+				if (isImageDataURL(msg)) {
+					$item.append($("<img>").attr("src", msg));
+				}
+				else {
+					$item.text(replaceURLWithHTMLLinks(msg));
+				}
+
+				$messages.append($item);
 				window.scrollTo(0, document.body.scrollHeight);
+			});
+
+			// paste.js
+			$inputMessage.pastableTextarea();
+			$inputMessage.on('pasteImage', function(ev, data) {
+			  // console.log("dataURL: " + data.dataURL);
+			  // console.log("width: " + data.width);
+			  // console.log("height: " + data.height);
+			  // console.log(data.blob);
+			  socket.emit("chat message", data.dataURL);
+			}).on('pasteImageError', function(ev, data) {
+			  alert('有問題啦！請聯繫作者。作者不在的話就無視吧。');
+			  alert('Oops: ' + data.message);
+			  if (data.url) {
+			    alert('But we got its url anyway:' + data.url)
+			  }
 			});
 
 			$messages.css("margin-bottom", `${$form.height()}px`);
