@@ -15,7 +15,7 @@ io.on('connection', function(socket){
 http.listen(port, function(){
   console.log('listening on *:' + port);
 
-  // 我一直忘記網址是多少所以這邊顯示一下 (borrowed from http-server)
+  // Useful tip with local addresses (borrowed from http-server)
   var os = require('os');
   var ifaces = os.networkInterfaces();
   Object.keys(ifaces).forEach(function(dev) {
