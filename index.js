@@ -15,4 +15,15 @@ io.on('connection', function(socket){
 
 http.listen(port, function(){
   console.log('listening on *:' + port);
+
+  // 我一直忘記網址是多少所以這邊顯示一下 (borrowed from http-server)
+  var os = require('os');
+  var ifaces = os.networkInterfaces();
+  Object.keys(ifaces).forEach(function(dev) {
+    ifaces[dev].forEach(function(details) {
+      if (details.family === 'IPv4') {
+        console.log(('  ' + details.address + ':' + port));
+      }
+    });
+  });
 });
