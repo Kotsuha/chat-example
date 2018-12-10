@@ -6,8 +6,15 @@ var port = process.env.PORT || 3000;
 
 app.use(express.static('public'));
 
-io.on('connection', function(socket){
-  socket.on('chat message', function(msg){
+var chatMessageHistory = [];
+
+io.on('connection', function(socket) {
+  chatMessageHistory.forEach(function(msg) {
+    socket.emit('chat message', msg);
+  });
+
+  socket.on('chat message', function(msg) {
+    chatMessageHistory.push(msg);
     io.emit('chat message', msg);
   });
 });

@@ -86,13 +86,15 @@
 			socket.on("chat message", function(msg) {
 				var $item = $("<li>");
 
-				 // TODO: more elegant way? future extensibility?
+				 // TODO: more clear/elegant way? future extensibility?
+				var html;
 				if (isImageDataURL(msg)) {
-					$item.append($("<img>").attr("src", msg));
+					html = $("<img>").attr("src", msg)
 				}
 				else {
-					$item.text(replaceURLWithHTMLLinks(msg));
+					html = replaceURLWithHTMLLinks(msg);
 				}
+				$item.html(html);
 
 				$messages.append($item);
 				window.scrollTo(0, document.body.scrollHeight);
